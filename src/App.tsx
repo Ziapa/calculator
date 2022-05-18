@@ -1,26 +1,61 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { MouseEvent } from 'react';
 
-function App() {
+import 'App.scss';
+import { useDispatch, useSelector } from 'react-redux';
+
+import {
+  allClearValueAC,
+  InitialAppStateType,
+  setCalculationValueAC,
+  setEqualsAC,
+  setOperatorAC,
+} from 'redux/app-reducer';
+import { AppRootStateType } from 'redux/store';
+
+const App: React.FC<any> = () => {
+  const appData = useSelector<AppRootStateType, InitialAppStateType>(state => state.app);
+  const dispatch = useDispatch();
+
+  const buttonsHandler = (event: MouseEvent<HTMLButtonElement>): void => {
+    // console.log(event.currentTarget.value);
+
+    if (event.currentTarget.id === 'number') {
+      dispatch(setCalculationValueAC(event.currentTarget.value));
+    } else if (event.currentTarget.value === 'C') {
+      dispatch(allClearValueAC());
+    } else if (event.currentTarget.id === 'operator') {
+      dispatch(setOperatorAC(event.currentTarget.value));
+    } else if (event.currentTarget.id === 'equals') {
+      dispatch(setEqualsAC());
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className="calculator">
+        <div className="display">
+          <div className="display_result">{appData.previousOperation}</div>
+          <div className="display_entryField">
+            {appData.finish ? appData.secondValue : appData.firstValue}
+            {appData.resultOperation}
+          </div>
+          <div className="buttons">
+            {appData.buttons.map(({ value, id, type }) => (
+              <button
+                onClick={buttonsHandler}
+                key={id}
+                type="button"
+                id={type}
+                value={value}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default App;
