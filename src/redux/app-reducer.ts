@@ -68,37 +68,45 @@ export const appReducer = (
 
     case 'SET_CALCULATION_FIRST_VALUE':
       if (state.firstValue === '0') {
+        // при нулевом значении ноль не повторяеться
         return { ...state, firstValue: action.payload };
       }
       if (state.secondValue === '' && state.operator === '') {
+        // когда нет оператора и второго значение заполняеться первое значение
         return { ...state, firstValue: state.firstValue + action.payload };
       }
       if (state.secondValue === '0') {
-        return { ...state, secondValue: action.payload, finish: false, firstValue: '0' };
+        // при нулевом значении ноль не повторяеться
+        return { ...state, secondValue: action.payload };
       }
+
+      // заполняеться второе значение
       return { ...state, secondValue: state.secondValue + action.payload };
 
     case 'SET_OPERATOR_VALUE':
-      // if (state.secondValue === '0') {
-      //   console.log(';');
-      //   return {
-      //     ...state,
-      //     previousOperation: state.previousOperation + state.operator + state.firstValue,
-      //   };
-      // }
+      if (state.secondValue === '0' || state.firstValue === '0') {
+        console.log('test');
+        return {
+          ...state,
+          previousOperation: state.previousOperation + state.firstValue + state.operator,
+        };
+      }
       return {
         ...state,
-        // operator: action.payload,
-        // finish: true,
-        // previousOperation: state.previousOperation + state.operator + +state.firstValue,
-        // secondValue: '0',
+        operator: action.payload,
+        finish: true,
+        previousOperation: state.previousOperation + state.firstValue + action.payload,
+        secondValue: '0',
       };
     case 'SET_EQUALS':
+      // после расчетов задаем первому значению расчеты операции
       return {
         ...state,
-        // previousOperation: `${state.firstValue} ${state.operator} ${state.secondValue}`,
-        // firstValue: '0',
-        // finish: false,
+        firstValue: action.payload,
+        previousOperation: `${state.previousOperation} ${state.secondValue} =`,
+        operator: '',
+        secondValue: '',
+        finish: false,
       };
 
     default:
@@ -107,7 +115,8 @@ export const appReducer = (
 };
 // ActionCreators
 export const allClearValueAC = () => ({ type: 'ALL_CLEAR_VALUE' } as const);
-export const setEqualsAC = () => ({ type: 'SET_EQUALS' } as const);
+export const setEqualsAC = (payload: string) =>
+  ({ type: 'SET_EQUALS', payload } as const);
 export const setOperatorAC = (payload: string) =>
   ({ type: 'SET_OPERATOR_VALUE', payload } as const);
 export const setCalculationValueAC = (payload: string) =>
